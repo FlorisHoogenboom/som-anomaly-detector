@@ -13,3 +13,14 @@ _degree_.
 4. For each observation in the data to be assessed, perform k-NN wrt. the SOM nodes. And calculate the mean distance
 to the nodes found. This is the _anomaly metric_.
 5. Order the evaluation data wrt. to the _anomaly metric_.
+
+# How to install
+Installation can be done by executing:
+	
+	git clone https://github.com/FlorisHoogenboom/som-anomaly-detector.git
+
+Subsequently one can install the package by just executing
+
+	pip install
+
+in the directory to which the repository was cloned.
