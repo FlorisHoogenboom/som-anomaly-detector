@@ -9,7 +9,7 @@ setup(name='som_anomaly_detector',
       author_email='floris@digitaldreamworks.nl',
       license='MIT',
       packages=['som_anomaly_detector'],
-      install_requires=[
+      install_requires = [
           'scipy',
           'numpy',
           'scikit-learn'
