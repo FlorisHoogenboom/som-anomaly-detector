@@ -1,4 +1,7 @@
 __pycache__/
+build/
+dist/
+.cache/
 
 *.pyc
 *.manifest
