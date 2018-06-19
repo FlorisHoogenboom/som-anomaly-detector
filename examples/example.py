@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import gaussian_kde
-from som_anomaly_detection.AnomalyDetection import AnomalyDetection # Our special Anomaly Detector
+from som_anomaly_detector.AnomalyDetection import AnomalyDetection # Our special Anomaly Detector
 from mpl_toolkits.mplot3d import Axes3D
 
 # Initialize our anomaly detector with some arbitrary paremeters.
