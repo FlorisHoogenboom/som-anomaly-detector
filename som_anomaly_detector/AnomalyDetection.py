@@ -1,6 +1,7 @@
-from KohonenSom import KohonenSom
-from sklearn.neighbors import NearestNeighbors
 import numpy as np
+from sklearn.neighbors import NearestNeighbors
+
+from som_anomaly_detector.KohonenSom import KohonenSom
 
 
 class AnomalyDetection(KohonenSom):
