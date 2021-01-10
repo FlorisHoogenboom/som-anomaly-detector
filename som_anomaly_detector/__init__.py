@@ -1,1 +1,1 @@
-__all__ = ["KohonenSom", "AnomalyDetection"]
+__all__ = ["kohonen_som", "anomaly_detection"]

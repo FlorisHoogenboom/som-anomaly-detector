@@ -1,17 +1,28 @@
-import numpy as np
 import math
+
+import numpy as np
 from scipy.stats import multivariate_normal
+
 
 class KohonenSom(object):
     """
-    This class provides an implementation of the Kohonen SOM algorithm. It supports SOMs of an arbitrary dimension,
-    which may be handy for data quality purposes.
+    This class provides an implementation of the Kohonen SOM algorithm.
+    It supports SOMs of an arbitrary dimension, which may be handy for data quality purposes.
     """
 
-    def __init__(self, shape, input_size, learning_rate, learning_decay = 1, initial_radius = 1, radius_decay = 1):
+    def __init__(
+        self,
+        shape,
+        input_size,
+        learning_rate,
+        learning_decay=1,
+        initial_radius=1,
+        radius_decay=1,
+    ):
         """ Initialization of the SOM
 
-        :param dimension: The shape of the network. Each entrty in the tuple corresponds to one direction
+        :param dimension: The shape of the network. Each entrty in the tuple corresponds
+            to one direction
         :type dimension: tuple of ints
         :param learning_rate: The inital learning rate.
         :type learning_rate: float, should be > 0
@@ -28,15 +39,20 @@ class KohonenSom(object):
         self.radius_decay = radius_decay
 
         # Initialize a distance matrix to avoid computing the distance on each iteration
-        distance = np.fromfunction(self._distance_function, tuple(2*i + 1 for i in shape)) # We create some
-        # redundant entries to make sure we have zero distance at index = shape, this is easier in later computations.
+        distance = np.fromfunction(
+            self._distance_function, tuple(2 * i + 1 for i in shape)
+        )
 
-        gaussianTransorm = np.vectorize(lambda x: multivariate_normal.pdf(x, mean=0, cov=1))
-        self.distance = gaussianTransorm(distance)
+        gaussian_transorm = np.vectorize(
+            lambda x: multivariate_normal.pdf(x, mean=0, cov=1)
+        )
+        self.distance = gaussian_transorm(distance)
 
         # We add an extra dimension so that we can easily perform multiplication later on
-        self.distance = np.repeat(self.distance, self.input_size, self.dimension-1)
-        self.distance = np.reshape(self.distance, newshape=(distance.shape + (self.input_size,)))
+        self.distance = np.repeat(self.distance, self.input_size, self.dimension - 1)
+        self.distance = np.reshape(
+            self.distance, newshape=(distance.shape + (self.input_size,))
+        )
 
         # Initialize the grid
         self.grid = np.random.rand(*(self.shape + (self.input_size,))) * 2 - 1
@@ -52,16 +68,18 @@ class KohonenSom(object):
 
         return
 
-
     def _distance_function(self, *args):
         """ Computes the euclidean distance for an arbitrary number of points
         :param points: arbitrary number of points
         :type points: float
         :return: the euclidean distance
         """
-
-        return sum([(i-x)**2 for i,x in zip(args, self.shape)]) ## Fill the array in such a way it contains zero
+        # Fill the array in such a way it contains zero
         # distance at the center, i.e. index = shape
+        return sum(
+            [(i - x) ** 2 for i, x in zip(args, self.shape)]
+        )
+
 
     def get_bmu(self, sample):
         """Find the best matchin unit for a specific sample
@@ -86,38 +104,38 @@ class KohonenSom(object):
         """
 
         sigma = self.initial_radius
-        l = self.learning_rate
+        learning_rate = self.learning_rate
         for i in range(1, num_iterations):
 
             obs = training_sample[np.random.choice(training_sample.shape[0], 1)][0]
             bmu = self.get_bmu(obs)
-            self.update_weights(obs, bmu, sigma, l)
+            self.update_weights(obs, bmu, sigma, learning_rate)
 
             # Update the parameters to let them decay to 0
-            sigma = self.initial_radius * math.exp(-(i*self.radius_decay))
-            l = self.learning_rate * math.exp(-(i*self.learning_decay))
+            sigma = self.initial_radius * math.exp(-(i * self.radius_decay))
+            learning_rate = self.learning_rate * math.exp(-(i * self.learning_decay))
         return self
 
     def update_weights(self, training_vector, bmu, sigma, learning_speed):
         reshaped_array = self.grid.reshape((np.product(self.shape), self.input_size))
 
         # We want to roll the distance matrix such that we have the BMU at the center
-        bmuDistance = self.distance
-        for i,bmu_ind in enumerate(bmu):
-            bmuDistance = np.roll(bmuDistance, bmu_ind, axis=i)
+        bmu_distance = self.distance
+        for i, bmu_ind in enumerate(bmu):
+            bmu_distance = np.roll(bmu_distance, bmu_ind, axis=i)
 
-        # Next we take part of the second quadrant of the matrix since this corresponds to the distance matrix we desire
+        # Next we take part of the second quadrant of the matrix since this corresponds to
+        # the distance matrix we desire
         for i, shape_ind in enumerate(self.shape):
-            slc = [slice(None)]*len(bmuDistance.shape)
-            slc[i] = slice(shape_ind, 2*shape_ind)
-            bmuDistance = bmuDistance[slc]
+            slc = [slice(None)] * len(bmu_distance.shape)
+            slc[i] = slice(shape_ind, 2 * shape_ind)
+            bmu_distance = bmu_distance[slc]
 
         # Multiply by sigma to emulate a decreasing radius effect
-        bmuDistance = sigma*bmuDistance
+        bmu_distance = sigma * bmu_distance
 
-
-        learningMatrix = -(self.grid - training_vector)
-        scaledLearningMatrix = learning_speed * (bmuDistance * learningMatrix)
-        self.grid = self.grid + scaledLearningMatrix
+        learning_matrix = -(self.grid - training_vector)
+        scaled_learning_matrix = learning_speed * (bmu_distance * learning_matrix)
+        self.grid = self.grid + scaled_learning_matrix
 
         return

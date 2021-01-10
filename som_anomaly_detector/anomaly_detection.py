@@ -1,26 +1,42 @@
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
 
-from som_anomaly_detector.KohonenSom import KohonenSom
+from som_anomaly_detector.kohonen_som import KohonenSom
 
 
 class AnomalyDetection(KohonenSom):
     """"
     This class uses provides an specific implementation of Kohonnen Som for anomaly detection.
     """
-    def __init__(self, shape, input_size, learning_rate, learning_decay = 0.1, initial_radius = 1, radius_decay = 0.1,
-                 minNumberPerBmu = 1, numberOfNeighbors = 3):
-        super(AnomalyDetection, self).__init__(shape, input_size, learning_rate, learning_decay, initial_radius,
-                                                radius_decay)
 
-        self.minNumberPerBmu = minNumberPerBmu
-        self.numberOfNeighbors = numberOfNeighbors
+    def __init__(
+        self,
+        shape,
+        input_size,
+        learning_rate,
+        learning_decay=0.1,
+        initial_radius=1,
+        radius_decay=0.1,
+        min_number_per_bmu=1,
+        number_of_neighbors=3,
+    ):
+        super(AnomalyDetection, self).__init__(
+            shape,
+            input_size,
+            learning_rate,
+            learning_decay,
+            initial_radius,
+            radius_decay,
+        )
+
+        self.minNumberPerBmu = min_number_per_bmu
+        self.numberOfNeighbors = number_of_neighbors
         return
 
     def get_bmu_counts(self, training_data):
         """
-        This functions maps a training set to the fitted network and evaluates for each node in the SOM the number of
-        evaluations mapped to that node. This gives counts per BMU.
+        This functions maps a training set to the fitted network and evaluates for each
+        node in the SOM the number of evaluations mapped to that node. This gives counts per BMU.
         :param training_data: numpy array of training data
         :return: An array of the same shape as the network with the best matching units.
         """
@@ -47,8 +63,9 @@ class AnomalyDetection(KohonenSom):
 
     def evaluate(self, evaluationData):
         """
-        This function maps the evaluation data to the previously fitted network. It calculates the anomaly measure
-        based on the distance between the observation and the K-NN nodes of this observation.
+        This function maps the evaluation data to the previously fitted network. It calculates the
+        anomaly measure based on the distance between the observation and the K-NN nodes of this
+        observation.
         :param evaluationData: Numpy array of the data to be evaluated
         :return: 1D-array with for each observation an anomaly measure
         """
@@ -56,9 +73,13 @@ class AnomalyDetection(KohonenSom):
             self.allowed_nodes
             assert self.allowed_nodes.shape[0] > 1
         except NameError:
-            raise Exception("Make sure the method fit is called before evaluating data.")
+            raise Exception(
+                "Make sure the method fit is called before evaluating data."
+            )
         except AssertionError:
-            raise Exception("There are no nodes satisfying the minimum criterium, algorithm cannot proceed.")
+            raise Exception(
+                "There are no nodes satisfying the minimum criterium, algorithm cannot proceed."
+            )
         else:
             classifier = NearestNeighbors(n_neighbors=self.numberOfNeighbors)
             classifier.fit(self.allowed_nodes)
